@@ -1,1 +1,1 @@
-# BivariateMap
+# Bivariate Map
