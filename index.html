@@ -48,6 +48,25 @@ line-height: 20px;
 margin: 0;
 }
 
+.info h1 {            
+        font-size: 12px;            
+        margin: 0 0 10px;            
+        color: #777777;          
+        }
+
+        h1{ 
+                    position: absolute; 
+                    left: 100px;
+                    top: 15px; 
+                    padding: 6px 2%; 
+                    margin: 0; 
+                    background: rgb(96, 96, 96); 
+                    box-shadow: 0 0 15px rgb(255, 255, 255); 
+                    border-radius: 5px; 
+                    color: whitesmoke; 
+                    font-size: 1.45em; 
+                    z-index: 800; 
+                }
 
         .legend {
 
@@ -71,6 +90,8 @@ font-family: 'Titillium Web', sans-serif;
 
     </head>
     <body>
+
+        <h1> The Different Types of Public Schools Within and Around the Greensboro City Council Districts</h1>
     <!-- Our web map and content will go here -->
     <div id="map"></div>
     <div class="legend"></div>
@@ -89,42 +110,84 @@ var mymap = L.map('map', {
 // 2. Add a base map.
 L.tileLayer('http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png').addTo(mymap);
 
-var Public_schools = null; 
+var publicschools = null; 
 
 
+const schoolTypeMap = {
+    "Elementary School": 1,
+    "Middle School": 2,
+    "High School": 3,
+    "K-12": 4,
+    "Early College": 5
+};
 
-
-Public_schools = L.geoJson.ajax("assets/Public_schools.geojson", {
+publicschools = L.geoJson.ajax("assets/publicschools.geojson", {
 
     function(feature, latlng) {
     var id = 0;
-    if (feature.properties.DISTRICT == "1") { id = 1; }
-    else if (feature.properties.DISTRICT == "2")  { id = 2; }
-    else if (feature.properties.DSTRICT == "3") { id = 3; }
-    else if (feature.properties.DISTRICT == "4") {id = 4; } 
-    else if (feature.properties.DISTRICT == "5") {id =  5; }
-    else if (feature.properties.DISTRICT == "NONE") {id = 0} // All other property types from attribute table
-    return L.marker(latlng, {icon: L.divIcon({className: 'fab fa-school-flag marker-color-' + (id + 1).toString() })});
+    if (feature.properties.School_typ == "Elementary School") { id = 0; }
+    else if (feature.properties.School_typ == "Middle")  { id = 1; }
+    else if (feature.properties.School_typ == "High School") { id = 2;} 
+    else if (feature.properties.School_typ == "K-12") { id = 3;} 
+    else if (feature.properties.School_typ == "Early College") { id = 4;}
+    else { id = 5;}
+    // All other property types from attribute table
+    return L.marker(latlng, {icon: L.divIcon({className: 'fab fa-school marker-color-' + (id + 1).toString() })});
   },
+
+    
+   // function(feature, latlng) {
+  //  var id = 0;
+   // if (feature.properties.School_typ == "1") { id = 1; }
+   // else if (feature.properties.School_typ == "2")  { id = 2; }
+   // else if (feature.properties.School_typ == "3") { id = 3; }
+   // else if (feature.properties.School_typ == "4") {id = 4; } 
+   // else if (feature.properties.School_typ == "5") {id =  5; }
+   // else if (feature.properties.School_typ == "Out of Jurisdiction") {id = 0} // All other property types from attribute table
+   // return L.marker(latlng, {icon: L.divIcon({className: 'fab fa-school marker-color-' + (id + 1).toString() })});
+  //},
 
   onEachFeature: function (feature, layer) {
-      layer.bindPopup(feature.properties.DISTRICT);
+      layer.bindPopup(feature.properties.school_nam);
   },
 
-  pointToLayer: function(feature, latlng) {
-    var id = 0;
-    if (feature.properties.DISTRICT == "District 1") { id = 1; }
-    else if (feature.properties.DISTRICT == "District 2")  { id = 2; }
-    else if (feature.properties.DISTRICT == "District 3") { id = 3;} 
-    else if (feature.properties.DISTRICT == "District 4") { id = 4; } 
-    else if (feature.properties.DISTRICT == "District 5") { id = 5;} 
-    else if (feature.properties.DISTRICT == "NONE") { id = 0} // All other property types from attribute table
-    return L.marker(latlng, {icon: L.divIcon({className: 'fab fa-school-flag marker-color-' + (id + 1).toString() })});
-  },
+  //pointToLayer: function(feature, latlng) {
+  //  var id = 0;
+   // if (feature.properties.school_nam == "Elementary School") { id = 0; }
+   // else if (feature.properties.school_nam == "Middle School")  { id = 1; }
+   // else if (feature.properties.school_nam == "High School") { id = 2;} 
+    //else if (feature.properties.school_nam == "K-12") { id = 3; } 
+    //else if (feature.properties.school_nam == "Early College") { id = 4;} 
+   // else if (feature.properties.school_nam == "Out of Jurisdiction") { id = 5;} // All other property types from attribute table
+   // return L.marker(latlng, {icon: L.divIcon({className: 'fab fa-school marker-color-' + (id + 1).toString() })});
+ // },
+
+ //pointToLayer: function(feature, latlng) {
+   // var id = 1; // default
+   // var type = feature.properties.school_nam;
+   // if (type == "Elementary School") id = 1;
+   // else if (type == "Middle School") id = 2;
+    //else if (type == "High School") id = 3;
+   // else if (type == "K-12") id = 4;
+   // else if (type == "Early College") id = 5;
+   // else id = 1; // fallback
+
+   // return L.marker(latlng, {
+     //   icon: L.divIcon({
+       //     className: 'fab fa-school marker-color-' + id
+       // })
+  //  });
+//}, 
 
 
-
-
+pointToLayer: function(feature, latlng) {
+    var id = schoolTypeMap[feature.properties.School_typ] || 1; // fallback to 1
+    return L.marker(latlng, {
+        icon: L.divIcon({
+            className: 'fab fa-school marker-color-' + id
+        })
+    });
+},
 
 
 
@@ -132,25 +195,34 @@ Public_schools = L.geoJson.ajax("assets/Public_schools.geojson", {
     attribution: 'Greensboro Council Districts &copy; <a href= "https://data.greensboro-nc.gov/datasets/9dc8e3a14ed1474285282fb689ca7306_3/explore"> City of Greensboro Open Data</a> | Public Schools &copy; <a href="https://www.nconemap.gov/datasets/dea6ff0e8b4743a0ba361e13a85a4c70_3/explore?filters=eyJwaHlzX2NpdHkiOlsiR3JlZW5zYm9ybyJdfQ%3D%3D&location=36.071023%2C-79.789427%2C10.69"> NC OneMap </a> | Base Map &copy; CartoDB | Map Author: Bridget Barr'
 }); 
 
-Public_schools.addTo(mymap); 
+publicschools.addTo(mymap); 
 
-var colors = chroma.scale('Dark2').mode('lch').colors(5); 
-
-for (i = 1; i < 5; i++) {
-    $('head').append($("<style> .marker-color-" + (i + 1).toString() + " { color: " + colors[i] + "; font-size: 15px; text-shadow: 0 0 3px #ffffff;} </style>"));
+var schoolColors = chroma.scale('Dark2').mode('lch').colors(5); 
+for (var i = 0; i < 5; i++) {
+    $('head').append($("<style> .marker-color-" + (i + 1) + " { color: " + schoolColors[i] + "; font-size: 15px; text-shadow: 0 0 3px #ffffff;} </style>"));
 }
 
-colors = chroma.scale('Greens').colors(5);
+colors = chroma.scale('Reds').colors(5);
 
-function setColor(density) {
-    var id = 1;
-    if (density > 106) { id = 5; } //133-27=106:highest fifth class
-    else if (density > 79 && density <= 106) { id = 4; } //106-27=79:4thclass
-    else if (density > 52 && density <= 79) { id = 3; } //79-27=52:3rdclass
-    else if (density > 25 &&  density <= 52) { id = 2; } //52-27=25:2ndclass
-    else  { id = 1; }
-    return colors[id];
+//function setColor(DISTRICT) {
+  //  var id = 1;
+  //  if (DISTRICT = 1) { id = 5; } //133-27=106:highest fifth class
+   // else if (DISTRICT = 2) { id = 4; } //106-27=79:4thclass
+  //  else if (DISTRICT = 3) { id = 3; } //79-27=52:3rdclass
+  //  else if (DISTRICT = 4) { id = 2; } //52-27=25:2ndclass
+   // else if (DISTRICT = 5) { id = 1; }
+   // return colors[id];
+//}
+
+function setColor(DISTRICT) {
+    if (DISTRICT == 1) return colors[0];
+    else if (DISTRICT == 2) return colors[1];
+    else if (DISTRICT == 3) return colors[2];
+    else if (DISTRICT == 4) return colors[3];
+    else if (DISTRICT == 5) return colors[4];
+    else return "#ffffff"; // default fallback
 }
+
 
 L.geoJson.ajax("assets/councildistricts.geojson", { 
     style: style
@@ -158,14 +230,60 @@ L.geoJson.ajax("assets/councildistricts.geojson", {
 
 function style(feature) {
     return {
-        fillColor: setColor(feature.properties.DISTRICTS),
-        fillOpacity: 0.4,
+        fillColor: setColor(feature.properties.DISTRICT),
+        fillOpacity: 0.5,
         weight: 2,
         opacity: 1,
-        color: '#b4b4b4',
+        color: '#0a0909',
         dashArray: '4'
     };
 }
+
+var info = L.control();
+
+info.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'info'); 
+    this.update();
+    return this._div;
+};
+
+info.update = function (props) {
+    this._div.innerHTML = '<h4>Council District</h4>' +  (props ?
+        '<b>District ' + props.DISTRICT + '</b>'
+        : 'Hover Over A District!');
+};
+
+info.addTo(mymap);
+
+function highlightFeature(e) {
+    var layer = e.target;
+
+    layer.setStyle({
+        weight: 3,
+        color: '#666',
+        fillOpacity: 0.7
+    });
+
+    layer.bringToFront();
+    info.update(layer.feature.properties);
+}
+
+function resetHighlight(e) {
+    districtLayer.resetStyle(e.target);
+    info.update();
+}
+
+function onEachDistrictFeature(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight
+    });
+}
+
+var districtLayer = L.geoJson.ajax("assets/councildistricts.geojson", { 
+    style: style,
+    onEachFeature: onEachDistrictFeature
+}).addTo(mymap);
 
 
 var legend = L.control({position: 'topright'});
@@ -177,13 +295,24 @@ legend.onAdd = function () {
     div.innerHTML += '<b>Council Districts</b><br />';
     //notice the class breaks entered at the end of the next 5 lines
     //the colors specify the shade of purple that we used to do the polygon shading
-    div.innerHTML += '<i style="background: ' + colors[4] + '; opacity: 0.5"></i><p>District 5</p>';
-    div.innerHTML += '<i style="background: ' + colors[3] + '; opacity: 0.5"></i><p>District 4</p>';
-    div.innerHTML += '<i style="background: ' + colors[2] + '; opacity: 0.5"></i><p>District 3</p>';
-    div.innerHTML += '<i style="background: ' + colors[1] + '; opacity: 0.5"></i><p>District 2</p>';
+   // div.innerHTML += '<i style="background: ' + colors[4] + '; opacity: 0.5"></i><p>District 5</p>';
+   // div.innerHTML += '<i style="background: ' + colors[3] + '; opacity: 0.5"></i><p>District 4</p>';
+   // div.innerHTML += '<i style="background: ' + colors[2] + '; opacity: 0.5"></i><p>District 3</p>';
+   // div.innerHTML += '<i style="background: ' + colors[1] + '; opacity: 0.5"></i><p>District 2</p>';
+    //div.innerHTML += '<i style="background: ' + colors[0] + '; opacity: 0.5"></i><p>District 1</p>';
+    
     div.innerHTML += '<i style="background: ' + colors[0] + '; opacity: 0.5"></i><p>District 1</p>';
+    div.innerHTML += '<i style="background: ' + colors[1] + '; opacity: 0.5"></i><p>District 2</p>';
+    div.innerHTML += '<i style="background: ' + colors[2] + '; opacity: 0.5"></i><p>District 3</p>';
+    div.innerHTML += '<i style="background: ' + colors[3] + '; opacity: 0.5"></i><p>District 4</p>';
+    div.innerHTML += '<i style="background: ' + colors[4] + '; opacity: 0.5"></i><p>District 5</p>';
+
+    
+    
+    
+    
     //this line provides the legend title for the airbnb colored symbols
-    div.innerHTML += '<hr><b>Public School Types<b><br />';
+    div.innerHTML += '<hr><b>Public School Type<b><br />';
     //the next 3 lines call the airbnb icon along with its proper color
     //notice the names of the Airbnb property types listed within the <p> tags at the end of the lines
     div.innerHTML += '<i class="fab fa-school marker-color-1"></i><p>Elementary School</p>';
